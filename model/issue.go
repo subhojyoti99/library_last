@@ -14,10 +14,9 @@ type IssueRegistry struct {
 	IssueApproverID    uint      `json:"issue_approver_id"`
 	IssueStatus        string    `json:"issue_status"`
 	CreatedAt          time.Time `json:"issue_date"`
-	ExpectedReturnDate string    `json:"expected_return_date"`
-	ReturnDate         time.Time `json:"return_date"`
+	ExpectedReturnDate time.Time `json:"expected_return_date"`
+	UpdatedAt          time.Time `json:"return_date"`
 	ReturnApproverID   uint      `json:"return_approver_id"`
-	UpdatedAt          time.Time `json:"updated_at"`
 }
 
 func (issue *IssueRegistry) Save() (*IssueRegistry, error) {

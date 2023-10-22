@@ -30,8 +30,7 @@ func CreateLibrary(context *gin.Context) {
 
 	var library model.Library
 
-	err := context.ShouldBindJSON(&library)
-	if err != nil {
+	if err := context.ShouldBindJSON(&library); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}

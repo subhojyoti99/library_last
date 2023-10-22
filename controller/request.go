@@ -22,14 +22,13 @@ func CreateRequest(context *gin.Context) {
 	user := util.CurrentUser(context)
 
 	if user.Role != "reader" {
-		context.JSON(http.StatusUnauthorized, gin.H{"error": "Access denied. Only Admins allowed."})
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "Access denied. Only readers allowed."})
 		return
 	}
 
 	var request model.RequestEvents
 
-	err := context.ShouldBindJSON(&request)
-	if err != nil {
+	if err := context.ShouldBindJSON(&request); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -60,7 +59,10 @@ func CreateRequest(context *gin.Context) {
 			context.JSON(http.StatusOK, existingRequest)
 			return
 		}
-		context.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request type change to return."})
+		existingRequest.RequestType = "borrow"
+		existingRequest.RequestTypeID = 1
+		database.DB.Save(&existingRequest)
+		context.JSON(http.StatusOK, existingRequest)
 		return
 	}
 

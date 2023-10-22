@@ -1,5 +1,3 @@
-// main.go
-
 package main
 
 import (
@@ -10,15 +8,12 @@ import (
 	"Reference/model"
 	"log"
 
-	// "os"
-
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
 
 func loadEnv() {
-	err := godotenv.Load(".env.local")
-	if err != nil {
+	if err := godotenv.Load(".env.local"); err != nil {
 		log.Fatal("Error loading .env file")
 	}
 }
@@ -65,6 +60,7 @@ func main() {
 	adminRouter.GET("/library/book/requests", controller.GetRequests)
 	adminRouter.POST("/library/book/issue/:request_id/approve", controller.ApproveIssue)
 	adminRouter.PUT("/library/book/issue/:issue_id", controller.ReturnIssue)
+	adminRouter.PUT("/library/book/issues", controller.GetAllIssues)
 
 	openRouter := router.Group("/api")
 	openRouter.Use(util.JWTAuthMiddleware())

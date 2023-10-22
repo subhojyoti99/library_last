@@ -1,5 +1,3 @@
-// model/user_model.go
-
 package model
 
 import (

@@ -1,5 +1,3 @@
-// model/library_model.go
-
 package model
 
 import (

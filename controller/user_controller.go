@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"net/http"
 
-	// "os"
+	"os"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -16,9 +16,9 @@ import (
 	"gorm.io/gorm"
 )
 
-// var validKey = os.Getenv("VALID_KEY")
-
 func Register(context *gin.Context) {
+	ownerKey := os.Getenv("OWNER_VALID_KEY")
+	adminKey := os.Getenv("ADMIN_VALID_KEY")
 
 	tx := database.DB.Begin()
 
@@ -82,39 +82,26 @@ func Register(context *gin.Context) {
 		Role:          input.Role,
 	}
 
-	// if input.Role == "owner" && owner_reader.ValidKey == validKey {
-	// 	fmt.Println("0000000", owner_reader.ValidKey, validKey)
-	// 	context.JSON(http.StatusConflict, gin.H{"error": "Invalid Valid Key"})
-	// 	return
-	// }
+	existingUser, _ := model.GetUserByEmail(input.Email)
 
-	existingUser, err := model.GetUserByEmail(input.Email)
-	_ = existingUser
-	fmt.Println("hfiowehfiouhweiofhweiohf", existingUser)
-	if err != nil {
-		context.JSON(http.StatusConflict, gin.H{"error": "Duplicate email"})
+	if input.Email == existingUser.Email {
+		context.JSON(http.StatusConflict, gin.H{"error": "User already registered."})
 		return
 	}
+	fmt.Println("hfiowehfiouhwe--iofhweiohf", ownerKey)
+	if input.Role == "owner" && input.ValidKey == ownerKey {
+		database.DB.Create(&owner)
+		context.JSON(http.StatusCreated, gin.H{"owner": owner})
+	} else if input.Role == "admin" && input.ValidKey == adminKey {
+		database.DB.Create(&admin)
+		context.JSON(http.StatusCreated, gin.H{"admin": admin})
+	} else if input.Role == "reader" {
+		database.DB.Create(&reader)
+		context.JSON(http.StatusCreated, gin.H{"reader": reader})
 
-	// existingLibrary, err := model.GetLibrary(int(admin.LibID))
-
-	if input.Email != existingUser.Email {
-
-		if input.Role == "owner" {
-			database.DB.Create(&owner)
-			context.JSON(http.StatusCreated, gin.H{"owner": owner})
-		} else if input.Role == "admin" {
-			database.DB.Create(&admin)
-			context.JSON(http.StatusCreated, gin.H{"user": admin})
-		} else {
-			database.DB.Create(&reader)
-			context.JSON(http.StatusCreated, gin.H{"reader": reader})
-		}
 	} else {
-		context.JSON(http.StatusConflict, gin.H{"error": "User already registered."})
+		context.JSON(http.StatusBadRequest, gin.H{"error": "Enter correct valid key.."})
 	}
-	// database.DB.Save(&user)
-	// context.JSON(http.StatusCreated, gin.H{"user": user})
 	tx.Commit()
 }
 

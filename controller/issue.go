@@ -46,7 +46,7 @@ func ApproveIssue(context *gin.Context) {
 		return
 	}
 
-	var expReturnDate = time.Now().AddDate(0, 0, 20)
+	expReturnDate := time.Now().Add(20 * 24 * time.Hour)
 
 	issueApprove := model.IssueRegistry{
 		ISBN:               requests.BookISBN,
@@ -140,7 +140,7 @@ func GetAllIssues(context *gin.Context) {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	context.JSON(http.StatusOK, gin.H{"All requests": issues})
+	context.JSON(http.StatusOK, gin.H{"all_requests": issues})
 
 	tx.Commit()
 }

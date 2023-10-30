@@ -116,7 +116,35 @@ func GetRequests(context *gin.Context) {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	context.JSON(http.StatusOK, gin.H{"All requests": requests})
+	context.JSON(http.StatusOK, gin.H{"all_requests": requests})
+
+	tx.Commit()
+}
+
+func GetRequestsAsReader(context *gin.Context) {
+	tx := database.DB.Begin()
+
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	user := util.CurrentUser(context)
+
+	if user.Role != "reader" {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "Access denied. Only Admins allowed."})
+		return
+	}
+
+	var requests []model.RequestEvents
+
+	err := database.DB.Where("reader_id = ?", user.ID).Find(&requests).Error
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	context.JSON(http.StatusOK, gin.H{"My_requests": requests})
 
 	tx.Commit()
 }

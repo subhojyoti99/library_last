@@ -39,6 +39,21 @@ func DBConnect() {
 func main() {
 	router := gin.Default()
 
+	// Add CORS middleware
+	router.Use(func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000") // Adjust with your React app's address
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+
+		c.Next()
+	})
+
 	loadEnv()
 	DBConnect()
 
@@ -58,9 +73,9 @@ func main() {
 	adminRouter.PUT("/library/book/:isbn", controller.UpdateBook)
 	adminRouter.DELETE("/library/book/:isbn", controller.DeleteBook)
 	adminRouter.GET("/library/book/requests", controller.GetRequests)
-	adminRouter.POST("/library/book/issue/:request_id/approve", controller.ApproveIssue)
+	adminRouter.POST("/library/book/issue/approve/:request_id", controller.ApproveIssue)
 	adminRouter.PUT("/library/book/issue/:issue_id", controller.ReturnIssue)
-	adminRouter.PUT("/library/book/issues", controller.GetAllIssues)
+	adminRouter.GET("/library/book/issues", controller.GetAllIssues)
 
 	openRouter := router.Group("/api")
 	openRouter.Use(util.JWTAuthMiddleware())
@@ -69,6 +84,7 @@ func main() {
 	openRouter.GET("/library/books", controller.GetAllBook)
 	openRouter.GET("/library/:library_id/books", controller.GetBookByLibraryID)
 	openRouter.POST("/request/:book_isbn", controller.CreateRequest)
+	openRouter.GET("/requests", controller.GetRequestsAsReader)
 
 	// adminRoutes := router.Group("/admin")
 	// adminRoutes.Use(util.JWTAuth())
@@ -79,5 +95,5 @@ func main() {
 	// adminRoutes.GET("/user/roles", controller.GetRoles)
 	// adminRoutes.PUT("/user/role/:id", controller.UpdateRole)
 
-	router.Run(":3000")
+	router.Run(":8080")
 }

@@ -151,7 +151,7 @@ func Login(context *gin.Context) {
 		return
 	}
 
-	context.JSON(http.StatusOK, gin.H{"token": jwt, "email": input.Email, "message": "Successfully logged in"})
+	context.JSON(http.StatusOK, gin.H{"token": jwt, "user": user, "message": "Successfully logged in"})
 
 	tx.Commit()
 }
